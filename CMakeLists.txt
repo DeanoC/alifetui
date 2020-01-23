@@ -27,10 +27,12 @@ find_package(ComputeCpp REQUIRED)
 
 set(Src
 		main.cpp
+		accel_sycl.cpp
+		accel_sycl.hpp
 		)
 set(Deps
 		al2o3_platform
 		al2o3_os
 		)
 ADD_CONSOLE_APP( ${ProjectName} "${Src}" "${Deps}")
-#add_sycl_to_target(TARGET ${ProjectName} SOURCES alife/accel_sycl.cpp)
+add_sycl_to_target(TARGET ${ProjectName} SOURCES accel_sycl.cpp)
