@@ -1,0 +1,161 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CodeBlocks_project_file>
+	<FileVersion major="1" minor="6"/>
+	<Project>
+		<Option title="al2o3_memory"/>
+		<Option makefile_is_custom="1"/>
+		<Option compiler="msvc8"/>
+		<Option virtualFolders="CMake Files\;CMake Files\al2o3\;CMake Files\al2o3\al2o3_memory-src\;CMake Files\al2o3\al2o3_os-src\;CMake Files\al2o3\al2o3_tinystl-src\;CMake Files\al2o3\al2o3_platform-src\;CMake Files\cmake\;CMake Files\cmake\Modules\;CMake Files\cmake-build-debug\;CMake Files\cmake-build-debug\_deps\;CMake Files\cmake-build-debug\_deps\al2o3-src\;CMake Files\cmake-build-debug\_deps\al2o3-src\cmake_modules\;"/>
+		<Build>
+			<Target title="all">
+				<Option working_dir="C:/Users/Computer/Documents/Code/alifetui/al2o3/al2o3_memory-build"/>
+				<Option type="4"/>
+				<MakeCommands>
+					<Build command="nmake /NOLOGO /f C:\Users\Computer\Documents\Code\alifetui\al2o3\al2o3_memory-build\Makefile VERBOSE=1 all"/>
+					<CompileFile command="nmake /NOLOGO /f C:\Users\Computer\Documents\Code\alifetui\al2o3\al2o3_memory-build\Makefile VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="nmake /NOLOGO /f C:\Users\Computer\Documents\Code\alifetui\al2o3\al2o3_memory-build\Makefile VERBOSE=1 clean"/>
+					<DistClean command="nmake /NOLOGO /f C:\Users\Computer\Documents\Code\alifetui\al2o3\al2o3_memory-build\Makefile VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="al2o3_memory">
+				<Option output="C:/Users/Computer/Documents/Code/alifetui/out_libs/al2o3_memory.lib" prefix_auto="0" extension_auto="0"/>
+				<Option working_dir="C:/Users/Computer/Documents/Code/alifetui/al2o3/al2o3_memory-build"/>
+				<Option object_output="./"/>
+				<Option type="2"/>
+				<Option compiler="msvc8"/>
+				<Compiler>
+					<Add directory="C:/Users/Computer/Documents/Code/alifetui/al2o3/al2o3_memory-src/include"/>
+					<Add directory="C:/Users/Computer/Documents/Code/alifetui/al2o3/al2o3_memory-src/src"/>
+					<Add directory="C:/Users/Computer/Documents/Code/alifetui/al2o3/al2o3_platform-src/include"/>
+					<Add directory="C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\Tools\MSVC\14.16.27023\ATLMFC\include"/>
+					<Add directory="C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\Tools\MSVC\14.16.27023\include"/>
+					<Add directory="C:\Program Files (x86)\Windows Kits\NETFXSDK\4.6.1\include\um"/>
+					<Add directory="C:\Program Files (x86)\Windows Kits\10\include\10.0.18362.0\ucrt"/>
+					<Add directory="C:\Program Files (x86)\Windows Kits\10\include\10.0.18362.0\shared"/>
+					<Add directory="C:\Program Files (x86)\Windows Kits\10\include\10.0.18362.0\um"/>
+					<Add directory="C:\Program Files (x86)\Windows Kits\10\include\10.0.18362.0\winrt"/>
+					<Add directory="C:\Program Files (x86)\Windows Kits\10\include\10.0.18362.0\cppwinrt"/>
+				</Compiler>
+				<MakeCommands>
+					<Build command="nmake /NOLOGO /f C:\Users\Computer\Documents\Code\alifetui\al2o3\al2o3_memory-build\Makefile VERBOSE=1 al2o3_memory"/>
+					<CompileFile command="nmake /NOLOGO /f C:\Users\Computer\Documents\Code\alifetui\al2o3\al2o3_memory-build\Makefile VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="nmake /NOLOGO /f C:\Users\Computer\Documents\Code\alifetui\al2o3\al2o3_memory-build\Makefile VERBOSE=1 clean"/>
+					<DistClean command="nmake /NOLOGO /f C:\Users\Computer\Documents\Code\alifetui\al2o3\al2o3_memory-build\Makefile VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="al2o3_memory/fast">
+				<Option output="C:/Users/Computer/Documents/Code/alifetui/out_libs/al2o3_memory.lib" prefix_auto="0" extension_auto="0"/>
+				<Option working_dir="C:/Users/Computer/Documents/Code/alifetui/al2o3/al2o3_memory-build"/>
+				<Option object_output="./"/>
+				<Option type="2"/>
+				<Option compiler="msvc8"/>
+				<Compiler>
+					<Add directory="C:/Users/Computer/Documents/Code/alifetui/al2o3/al2o3_memory-src/include"/>
+					<Add directory="C:/Users/Computer/Documents/Code/alifetui/al2o3/al2o3_memory-src/src"/>
+					<Add directory="C:/Users/Computer/Documents/Code/alifetui/al2o3/al2o3_platform-src/include"/>
+					<Add directory="C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\Tools\MSVC\14.16.27023\ATLMFC\include"/>
+					<Add directory="C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\Tools\MSVC\14.16.27023\include"/>
+					<Add directory="C:\Program Files (x86)\Windows Kits\NETFXSDK\4.6.1\include\um"/>
+					<Add directory="C:\Program Files (x86)\Windows Kits\10\include\10.0.18362.0\ucrt"/>
+					<Add directory="C:\Program Files (x86)\Windows Kits\10\include\10.0.18362.0\shared"/>
+					<Add directory="C:\Program Files (x86)\Windows Kits\10\include\10.0.18362.0\um"/>
+					<Add directory="C:\Program Files (x86)\Windows Kits\10\include\10.0.18362.0\winrt"/>
+					<Add directory="C:\Program Files (x86)\Windows Kits\10\include\10.0.18362.0\cppwinrt"/>
+				</Compiler>
+				<MakeCommands>
+					<Build command="nmake /NOLOGO /f C:\Users\Computer\Documents\Code\alifetui\al2o3\al2o3_memory-build\Makefile VERBOSE=1 al2o3_memory/fast"/>
+					<CompileFile command="nmake /NOLOGO /f C:\Users\Computer\Documents\Code\alifetui\al2o3\al2o3_memory-build\Makefile VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="nmake /NOLOGO /f C:\Users\Computer\Documents\Code\alifetui\al2o3\al2o3_memory-build\Makefile VERBOSE=1 clean"/>
+					<DistClean command="nmake /NOLOGO /f C:\Users\Computer\Documents\Code\alifetui\al2o3\al2o3_memory-build\Makefile VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+		</Build>
+		<Unit filename="C:/Users/Computer/Documents/Code/alifetui/al2o3/al2o3_memory-src/include/al2o3_memory/memory.h">
+			<Option target="al2o3_memory"/>
+		</Unit>
+		<Unit filename="C:/Users/Computer/Documents/Code/alifetui/al2o3/al2o3_memory-src/src/memory.c">
+			<Option target="al2o3_memory"/>
+		</Unit>
+		<Unit filename="C:/Users/Computer/Documents/Code/alifetui/CMakeLists.txt">
+			<Option virtualFolder="CMake Files\"/>
+		</Unit>
+		<Unit filename="C:/Users/Computer/Documents/Code/alifetui/al2o3/al2o3_memory-src/CMakeLists.txt">
+			<Option virtualFolder="CMake Files\al2o3\al2o3_memory-src\"/>
+		</Unit>
+		<Unit filename="C:/Users/Computer/Documents/Code/alifetui/al2o3/al2o3_memory-src/LICENSE">
+			<Option virtualFolder="CMake Files\al2o3\al2o3_memory-src\"/>
+		</Unit>
+		<Unit filename="C:/Users/Computer/Documents/Code/alifetui/al2o3/al2o3_os-src/CMakeLists.txt">
+			<Option virtualFolder="CMake Files\al2o3\al2o3_os-src\"/>
+		</Unit>
+		<Unit filename="C:/Users/Computer/Documents/Code/alifetui/al2o3/al2o3_os-src/LICENSE">
+			<Option virtualFolder="CMake Files\al2o3\al2o3_os-src\"/>
+		</Unit>
+		<Unit filename="C:/Users/Computer/Documents/Code/alifetui/al2o3/al2o3_tinystl-src/CMakeLists.txt">
+			<Option virtualFolder="CMake Files\al2o3\al2o3_tinystl-src\"/>
+		</Unit>
+		<Unit filename="C:/Users/Computer/Documents/Code/alifetui/al2o3/al2o3_tinystl-src/LICENSE">
+			<Option virtualFolder="CMake Files\al2o3\al2o3_tinystl-src\"/>
+		</Unit>
+		<Unit filename="C:/Users/Computer/Documents/Code/alifetui/al2o3/al2o3_platform-src/CMakeLists.txt">
+			<Option virtualFolder="CMake Files\al2o3\al2o3_platform-src\"/>
+		</Unit>
+		<Unit filename="C:/Users/Computer/Documents/Code/alifetui/al2o3/al2o3_platform-src/LICENSE">
+			<Option virtualFolder="CMake Files\al2o3\al2o3_platform-src\"/>
+		</Unit>
+		<Unit filename="C:/Users/Computer/Documents/Code/alifetui/cmake/Modules/ComputeCppIRMap.cmake">
+			<Option virtualFolder="CMake Files\cmake\Modules\"/>
+		</Unit>
+		<Unit filename="C:/Users/Computer/Documents/Code/alifetui/cmake/Modules/FindComputeCpp.cmake">
+			<Option virtualFolder="CMake Files\cmake\Modules\"/>
+		</Unit>
+		<Unit filename="C:/Users/Computer/Documents/Code/alifetui/cmake-build-debug/_deps/al2o3-src/CMakeLists.txt">
+			<Option virtualFolder="CMake Files\cmake-build-debug\_deps\al2o3-src\"/>
+		</Unit>
+		<Unit filename="C:/Users/Computer/Documents/Code/alifetui/cmake-build-debug/_deps/al2o3-src/base_fetchdeclare_cmakelists.txt">
+			<Option virtualFolder="CMake Files\cmake-build-debug\_deps\al2o3-src\"/>
+		</Unit>
+		<Unit filename="C:/Users/Computer/Documents/Code/alifetui/cmake-build-debug/_deps/al2o3-src/data_fetchdeclare_cmakelists.txt">
+			<Option virtualFolder="CMake Files\cmake-build-debug\_deps\al2o3-src\"/>
+		</Unit>
+		<Unit filename="C:/Users/Computer/Documents/Code/alifetui/cmake-build-debug/_deps/al2o3-src/gfx_fetchdeclare_cmakelists.txt">
+			<Option virtualFolder="CMake Files\cmake-build-debug\_deps\al2o3-src\"/>
+		</Unit>
+		<Unit filename="C:/Users/Computer/Documents/Code/alifetui/cmake-build-debug/_deps/al2o3-src/input_fetchdeclare_cmakelists.txt">
+			<Option virtualFolder="CMake Files\cmake-build-debug\_deps\al2o3-src\"/>
+		</Unit>
+		<Unit filename="C:/Users/Computer/Documents/Code/alifetui/cmake-build-debug/_deps/al2o3-src/lua_fetchdeclare_cmakelists.txt">
+			<Option virtualFolder="CMake Files\cmake-build-debug\_deps\al2o3-src\"/>
+		</Unit>
+		<Unit filename="C:/Users/Computer/Documents/Code/alifetui/cmake-build-debug/_deps/al2o3-src/physics_fetchdeclare_cmakelists.txt">
+			<Option virtualFolder="CMake Files\cmake-build-debug\_deps\al2o3-src\"/>
+		</Unit>
+		<Unit filename="C:/Users/Computer/Documents/Code/alifetui/cmake-build-debug/_deps/al2o3-src/render_fetchdeclare_cmakelists.txt">
+			<Option virtualFolder="CMake Files\cmake-build-debug\_deps\al2o3-src\"/>
+		</Unit>
+		<Unit filename="C:/Users/Computer/Documents/Code/alifetui/cmake-build-debug/_deps/al2o3-src/utils_fetchdeclare_cmakelists.txt">
+			<Option virtualFolder="CMake Files\cmake-build-debug\_deps\al2o3-src\"/>
+		</Unit>
+		<Unit filename="C:/Users/Computer/Documents/Code/alifetui/cmake-build-debug/_deps/al2o3-src/cmake_modules/al2o3_app_utils.cmake">
+			<Option virtualFolder="CMake Files\cmake-build-debug\_deps\al2o3-src\cmake_modules\"/>
+		</Unit>
+		<Unit filename="C:/Users/Computer/Documents/Code/alifetui/cmake-build-debug/_deps/al2o3-src/cmake_modules/al2o3_dir_utils.cmake">
+			<Option virtualFolder="CMake Files\cmake-build-debug\_deps\al2o3-src\cmake_modules\"/>
+		</Unit>
+		<Unit filename="C:/Users/Computer/Documents/Code/alifetui/cmake-build-debug/_deps/al2o3-src/cmake_modules/al2o3_fetch_utils.cmake">
+			<Option virtualFolder="CMake Files\cmake-build-debug\_deps\al2o3-src\cmake_modules\"/>
+		</Unit>
+		<Unit filename="C:/Users/Computer/Documents/Code/alifetui/cmake-build-debug/_deps/al2o3-src/cmake_modules/al2o3_lib_utils.cmake">
+			<Option virtualFolder="CMake Files\cmake-build-debug\_deps\al2o3-src\cmake_modules\"/>
+		</Unit>
+		<Unit filename="C:/Users/Computer/Documents/Code/alifetui/cmake-build-debug/_deps/al2o3-src/cmake_modules/al2o3_linktimeinterface.cmake">
+			<Option virtualFolder="CMake Files\cmake-build-debug\_deps\al2o3-src\cmake_modules\"/>
+		</Unit>
+		<Unit filename="C:/Users/Computer/Documents/Code/alifetui/cmake-build-debug/_deps/al2o3-src/cmake_modules/al2o3_test_utils.cmake">
+			<Option virtualFolder="CMake Files\cmake-build-debug\_deps\al2o3-src\cmake_modules\"/>
+		</Unit>
+		<Unit filename="C:/Users/Computer/Documents/Code/alifetui/cmake-build-debug/_deps/al2o3-src/cmake_modules/al2o3_utils.cmake">
+			<Option virtualFolder="CMake Files\cmake-build-debug\_deps\al2o3-src\cmake_modules\"/>
+		</Unit>
+	</Project>
+</CodeBlocks_project_file>
