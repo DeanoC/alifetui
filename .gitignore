@@ -30,3 +30,13 @@
 *.exe
 *.out
 *.app
+/al2o3/al2o3_memory-build/
+/al2o3/al2o3_os-build/
+/al2o3/al2o3_platform-build/
+/al2o3/al2o3_tinystl-build/
+/out_bin/alifetui.ilk
+/out_bin/alifetui.pdb
+
+cmake-build-debug/
+
+*.ilk
