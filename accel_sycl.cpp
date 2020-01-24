@@ -18,6 +18,48 @@ struct SyclCore {
 	cl::sycl::queue queue;
 };
 
+inline int _ConvertSMVer2Cores(int major, int minor) {
+	// Defines for GPU Architecture types (using the SM version to determine
+	// the # of cores per SM
+	typedef struct {
+		int SM;  // 0xMm (hexidecimal notation), M = SM Major version,
+		// and m = SM minor version
+		int Cores;
+	} sSMtoCores;
+
+	sSMtoCores nGpuArchCoresPerSM[] = {
+			{0x30, 192},
+			{0x32, 192},
+			{0x35, 192},
+			{0x37, 192},
+			{0x50, 128},
+			{0x52, 128},
+			{0x53, 128},
+			{0x60, 64},
+			{0x61, 128},
+			{0x62, 128},
+			{0x70, 64},
+			{0x72, 64},
+			{0x75, 64},
+			{-1, -1}};
+
+	int index = 0;
+
+	while (nGpuArchCoresPerSM[index].SM != -1) {
+		if (nGpuArchCoresPerSM[index].SM == ((major << 4) + minor)) {
+			return nGpuArchCoresPerSM[index].Cores;
+		}
+
+		index++;
+	}
+
+	// If we don't find the values, we default use the previous one
+	// to run properly
+	LOGINFO("MapSMtoCores for SM %d.%d is undefined. Default to use %d Cores/SM\n",
+					major, minor, nGpuArchCoresPerSM[index - 1].Cores);
+	return nGpuArchCoresPerSM[index - 1].Cores;
+}
+
 class selftestTag;
 
 /* Classes can inherit from the device_selector class to allow users
@@ -35,14 +77,37 @@ public:
 	int operator()(const cl::sycl::device &device) const override {
 		using namespace cl::sycl;
 		bool const isGPU = device.get_info<info::device::device_type>() == info::device_type::gpu;
-		/*
+
 		LOGINFO("-----");
 		LOGINFO("%s - %s", device.get_info<info::device::vendor>().c_str(),
 						device.get_info<info::device::name>().c_str());
-		LOGINFO("CUs - %d, gpu - %d",
-					 device.get_info<info::device::max_compute_units>(),
-					 isGPU);*/
-		return device.get_info<info::device::max_compute_units>() + (isGPU * 1024);
+
+		uint32_t cuCount = device.get_info<info::device::max_compute_units>();
+		uint32_t coresPerCU = 1;
+		uint32_t flopsPerCore = 8;
+
+		if(device.is_host()) {
+			return 1;
+		}
+
+		if(device.get_info<info::device::vendor_id>() == 0x10de) {
+			auto bytes = size_t{0};
+			clGetDeviceInfo(device.get(), CL_DEVICE_COMPUTE_CAPABILITY_MAJOR_NV, 0, nullptr, &bytes);
+			auto major = cl_uint(0);
+			clGetDeviceInfo(device.get(), CL_DEVICE_COMPUTE_CAPABILITY_MAJOR_NV, bytes, &major, nullptr);
+			clGetDeviceInfo(device.get(), CL_DEVICE_COMPUTE_CAPABILITY_MINOR_NV, 0, nullptr, &bytes);
+			auto minor = cl_uint(0);
+			clGetDeviceInfo(device.get(), CL_DEVICE_COMPUTE_CAPABILITY_MINOR_NV, bytes, &minor, nullptr);
+			LOGINFO("NVIDIA Compute Version: %d.%d", major, minor);
+			coresPerCU = _ConvertSMVer2Cores(major, minor) / 32;
+			flopsPerCore = 32;
+		}
+
+
+		LOGINFO("CUs - %d, cores per CU %d, total FALU %d gpu - %d",
+				cuCount, coresPerCU, cuCount * coresPerCU * flopsPerCore, isGPU);
+
+		return cuCount * coresPerCU * flopsPerCore;
 	}
 
 };
