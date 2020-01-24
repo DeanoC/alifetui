@@ -36,32 +36,43 @@ void display(WorldCylinder const& world) {
 }
 
 int main() {
-	initscr();
+	WINDOW *pdcWindow = initscr();
 
-	keypad(stdscr, TRUE);
-	nodelay(stdscr, TRUE);
-	noecho();
+	if (pdcWindow != nullptr) {
+		keypad(stdscr, TRUE);
+		nodelay(stdscr, TRUE);
+		noecho();
 
-	if (has_colors()) start_color();
-	for (uint16_t i = 0; i < 8; i++) {
-		init_pair(i, color_table[i], COLOR_BLACK);
+		if (has_colors())
+			start_color();
+		for (uint16_t i = 0; i < 8; i++) {
+			init_pair(i, color_table[i], COLOR_BLACK);
+		}
 	}
-
 	using namespace Accel;
 	Sycl* sycl = Sycl::Create();
 
 	{
 		WorldCylinder world(128, 32);
-		while (getch() == ERR)      /* loop until a key is hit */
-		{
+		world.init(sycl->getQueue());
+
+		if(pdcWindow!= nullptr) {
+			while (getch() == ERR)      /* loop until a key is hit */
+			{
+				world.update(sycl->getQueue());
+				world.flushToHost();
+				display(world);
+			}
+		} else {
 			world.update(sycl->getQueue());
 			world.flushToHost();
-			display(world);
 		}
 	}
 
 	sycl->Destroy();
-	endwin();
+	if(pdcWindow != nullptr) {
+		endwin();
+	}
 
 	return 0;
 }

@@ -19,8 +19,8 @@ set(ProjectName alifetui)
 list(APPEND CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake/Modules)
 
 set(ComputeCpp_DIR "C:/Program Files/codeplay/computecpp")
-set(COMPUTECPP_BITCODE "ptx64" CACHE STRING "Bitcode type to use as SYCL target in compute++")
-#set(COMPUTECPP_BITCODE "spir64" CACHE STRING "Bitcode type to use as SYCL target in compute++")
+#set(COMPUTECPP_BITCODE "ptx64" CACHE STRING "Bitcode type to use as SYCL target in compute++")
+set(COMPUTECPP_BITCODE "spir64" CACHE STRING "Bitcode type to use as SYCL target in compute++")
 
 project(${ProjectName} C CXX)
 find_package(ComputeCpp REQUIRED)
@@ -84,6 +84,7 @@ set(Src
 set(Deps
 		al2o3_platform
 		al2o3_os
+		al2o3_cmath
 		)
 ADD_CONSOLE_APP( ${ProjectName} "${Src}" "${Deps}")
 add_sycl_to_target(TARGET ${ProjectName} SOURCES

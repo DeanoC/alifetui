@@ -396,7 +396,7 @@ int PDC_scr_open(void)
     if (GetFileType(pdc_con_in) != FILE_TYPE_CHAR)
     {
         fprintf(stderr, "\nRedirection is not supported.\n");
-        exit(1);
+        return ERR;
     }
 
     is_nt = !(GetVersion() & 0x80000000);

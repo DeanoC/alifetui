@@ -132,7 +132,8 @@ WINDOW *initscr(void)
     if (PDC_scr_open() == ERR)
     {
         fprintf(stderr, "initscr(): Unable to create SP\n");
-        exit(8);
+        return NULL;
+//        exit(8);
     }
 
     SP->autocr = TRUE;       /* cr -> lf by default */
@@ -165,21 +166,21 @@ WINDOW *initscr(void)
     {
         fprintf(stderr, "initscr(): LINES=%d COLS=%d: too small.\n",
                 LINES, COLS);
-        exit(4);
+        return NULL;
     }
 
     curscr = newwin(LINES, COLS, 0, 0);
     if (!curscr)
     {
         fprintf(stderr, "initscr(): Unable to create curscr.\n");
-        exit(2);
+        return NULL;
     }
 
     SP->lastscr = newwin(LINES, COLS, 0, 0);
     if (!SP->lastscr)
     {
         fprintf(stderr, "initscr(): Unable to create SP->lastscr.\n");
-        exit(2);
+				return NULL;
     }
 
     wattrset(SP->lastscr, (chtype)(-1));
@@ -209,7 +210,7 @@ WINDOW *initscr(void)
     if (!stdscr)
     {
         fprintf(stderr, "initscr(): Unable to create stdscr.\n");
-        exit(1);
+				return NULL;
     }
 
     wclrtobot(stdscr);

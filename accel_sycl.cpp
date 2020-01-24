@@ -101,6 +101,7 @@ public:
 			LOGINFO("NVIDIA Compute Version: %d.%d", major, minor);
 			coresPerCU = _ConvertSMVer2Cores(major, minor) / 32;
 			flopsPerCore = 32;
+			return 0;
 		}
 
 
