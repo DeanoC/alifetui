@@ -1,6 +1,10 @@
 // License Summary: MIT see LICENSE file
 #pragma once
 
+namespace cl::sycl {
+ class queue;
+}
+
 typedef struct SyclCore *SyclHandle;
 
 AL2O3_EXTERN_C SyclHandle AccelSycl_Create();
@@ -18,6 +22,8 @@ public:
 	void Destroy() {
 		AccelSycl_Destroy((SyclHandle)this);
 	}
+
+	cl::sycl::queue& getQueue();
 
 	~Sycl() {
 		Destroy();

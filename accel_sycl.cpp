@@ -127,27 +127,27 @@ AL2O3_EXTERN_C SyclHandle AccelSycl_Create() {
 
 	auto sycl = new SyclCore{dev};
 
-	const int dataSize = 2048;
-	float data[dataSize] = {0.f};
+	const int dataSize = 128;
+	float data[dataSize * dataSize] = {0.f};
 
-	range<1> dataRange(dataSize);
-	buffer<float, 1> buf(data, dataRange);
+	range<2> dataRange(dataSize,dataSize);
+	buffer<float, 2> buf(data, dataRange);
 
 	sycl->queue.submit([&](handler &cgh) {
 		auto ptr = buf.get_access<access::mode::read_write>(cgh);
 
-		cgh.parallel_for<selftestTag>(dataRange, [=](item<1> item) {
-			size_t idx = item.get_linear_id();
-			ptr[item.get_linear_id()] = static_cast<float>(idx);
+		cgh.parallel_for<selftestTag>(dataRange, [=](item<2> item) {
+			size_t idx = item.get_id(0);
+			ptr[item.get_id()] = static_cast<float>(idx);
 		});
 	});
 
 	/* A host accessor can be used to force an update from the device to the
 	 * host, allowing the data to be checked. */
-	accessor<float, 1, access::mode::read_write, access::target::host_buffer>
+	accessor<float, 2, access::mode::read_write, access::target::host_buffer>
 			hostPtr(buf);
 
-	if (hostPtr[2013] != 2013.0f) {
+	if (hostPtr[id<2>(127,0)] != 127.0f) {
 		LOGINFO("Sycl self test Failed");
 		AccelSycl_Destroy(sycl);
 		return nullptr;
@@ -159,3 +159,7 @@ AL2O3_EXTERN_C SyclHandle AccelSycl_Create() {
 AL2O3_EXTERN_C void AccelSycl_Destroy(SyclHandle sycl) {
 	delete sycl;
 }
+cl::sycl::queue& Accel::Sycl::getQueue() {
+	return ((SyclCore*)this)->queue;
+}
+

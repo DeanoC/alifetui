@@ -23,6 +23,31 @@ WorldCylinder::~WorldCylinder() {
 	MEMORY_FREE(hostIntensity);
 }
 
-void WorldCylinder::FlushToHost() {
-	intensity[doubleBufferIndex].get_access<cl::sycl::access::mode::read>();
+namespace {
+struct UpdateTag1;
+}
+
+void WorldCylinder::update(cl::sycl::queue& q) {
+	using namespace cl::sycl;
+
+	q.submit([&](handler &cgh) {
+		auto ptr = intensity[doubleBufferIndex].get_access<access::mode::read_write>(cgh);
+
+		cgh.parallel_for<UpdateTag1>(dataRange, [=](item<2> item) {
+			if(ptr[item.get_id()] > 255.0f) {
+				ptr[item.get_id()] = 0.0f;
+			} else {
+				ptr[item.get_id()] += 1.0f;
+			}
+		});
+	});
+
+}
+
+void WorldCylinder::flushToHost() {
+	using namespace cl::sycl;
+	accessor<float, 2, access::mode::read, access::target::host_buffer>
+			hostPtr(intensity[doubleBufferIndex]);
+
+	memcpy(hostIntensity, hostPtr.get_pointer(), sizeof(float) * width * height);
 }

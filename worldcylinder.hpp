@@ -8,7 +8,8 @@ struct WorldCylinder {
 	WorldCylinder(uint32_t width, uint32_t height);
 	~WorldCylinder();
 
-	void FlushToHost();
+	void flushToHost();
+	void update(cl::sycl::queue& q);
 
 	uint32_t width;
 	uint32_t height;

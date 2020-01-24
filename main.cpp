@@ -17,6 +17,24 @@ short color_table[] =
 		COLOR_RED, COLOR_MAGENTA, COLOR_YELLOW, COLOR_WHITE
 };
 
+void display(WorldCylinder const& world) {
+
+	attrset(A_NORMAL);
+	for(uint32_t y = 0; y < world.height;++y) {
+		for(uint32_t x = 0;x < world.width;++x) {
+			float val = world.hostIntensity[(y * world.width) + x];
+			char cv = '#';
+			if(val > 32 && val < 127) {
+				cv = (char) val;
+			}
+			mvaddch(y,x, cv);
+		}
+
+
+	}
+	refresh();
+}
+
 int main() {
 	initscr();
 
@@ -33,26 +51,12 @@ int main() {
 	Sycl* sycl = Sycl::Create();
 
 	{
-		WorldCylinder world(64, 64);
-
+		WorldCylinder world(128, 32);
 		while (getch() == ERR)      /* loop until a key is hit */
 		{
-			attrset(A_NORMAL);
-//			erase();
-
-			attrset(COLOR_PAIR(0));
-			mvaddstr(0, 0, "-----------------------------");
-			mvaddstr(1, 0, "-----------------------------");
-			mvaddstr(2, 0, "-----------------------------");
-			mvaddstr(3, 0, "-----------------------------");
-			mvaddstr(4, 0, "-----------------------------");
-			mvaddstr(5, 0, "-----------------------------");
-			mvaddstr(6, 0, "-----------------------------");
-			mvaddstr(7, 0, "-----------------------------");
-
-			napms(50);
-			move(LINES - 1, COLS - 1);
-			refresh();
+			world.update(sycl->getQueue());
+			world.flushToHost();
+			display(world);
 		}
 	}
 
