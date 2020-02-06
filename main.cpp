@@ -14,7 +14,7 @@ void explode(int, int);
 short color_table[] =
 {
 		COLOR_RED, COLOR_BLUE, COLOR_GREEN, COLOR_CYAN,
-		COLOR_RED, COLOR_MAGENTA, COLOR_YELLOW, COLOR_WHITE
+		COLOR_MAGENTA, COLOR_YELLOW, COLOR_BLACK, COLOR_WHITE
 };
 
 void display(WorldCylinder const& world) {
@@ -27,6 +27,7 @@ void display(WorldCylinder const& world) {
 			if(val > 32 && val < 127) {
 				cv = (char) val;
 			}
+			attrset(COLOR_PAIR((cv-32)/8));
 			mvaddch(y,x, cv);
 		}
 
@@ -56,16 +57,22 @@ int main() {
 		WorldCylinder world(128, 32);
 		world.init(sycl->getQueue());
 
-		if(pdcWindow!= nullptr) {
-			while (getch() == ERR)      /* loop until a key is hit */
-			{
-				world.update(sycl->getQueue());
+		int count = 100;
+		bool cont = true;
+		while (cont)
+		{
+			if(pdcWindow == nullptr) {
+				cont = (count--) ? true : false;
+			} else {
+				cont = getch() == ERR;
+			}
+
+			world.update(sycl->getQueue());
+
+			if(pdcWindow != nullptr) {
 				world.flushToHost();
 				display(world);
 			}
-		} else {
-			world.update(sycl->getQueue());
-			world.flushToHost();
 		}
 	}
 
@@ -74,5 +81,4 @@ int main() {
 		endwin();
 	}
 
-	return 0;
-}
+	return 0;}

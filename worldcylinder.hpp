@@ -17,9 +17,18 @@ struct WorldCylinder {
 	uint32_t height;
 
 	uint32_t doubleBufferIndex;
-	float* hostIntensity;
 	cl::sycl::range<2> dataRange;
+	cl::sycl::range<2> downSampleRange;
+
+	cl::sycl::event updateDoneEvent;
+
+
+	float* hostNewData;
+	cl::sycl::buffer<float, 1> newData;
+
+	float* hostIntensity;
 	cl::sycl::buffer<float, 2> intensity[2];
+	cl::sycl::buffer<float, 2> downSample;
 };
 
 

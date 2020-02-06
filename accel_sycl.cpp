@@ -5,13 +5,27 @@
 // License Summary: MIT see LICENSE file
 
 #include "al2o3_platform/platform.h"
+#include "al2o3_memory/memory.h"
 #include "accel_sycl.hpp"
 #include <CL/sycl.hpp>
+
+auto exception_handler = [] (sycl::exception_list exceptions) {
+	for (std::exception_ptr const& e : exceptions) {
+		try {
+			std::rethrow_exception(e);
+		}
+		catch( cl::sycl::exception const e) {
+			LOGERROR("%s", e.what());
+		} catch( std::exception const e) {
+			LOGERROR("%s", e.what());
+		}
+	}
+};
 
 struct SyclCore {
 	SyclCore(cl::sycl::device &dev) :
 			device(dev),
-			queue(dev) {
+			queue(device, exception_handler) {
 	}
 
 	cl::sycl::device device;
@@ -101,9 +115,20 @@ public:
 			LOGINFO("NVIDIA Compute Version: %d.%d", major, minor);
 			coresPerCU = _ConvertSMVer2Cores(major, minor) / 32;
 			flopsPerCore = 32;
-			return 0;
 		}
 
+#if COMPUTECPP_BACKEND_spir64
+		if( !device.supports_backend(detail::device_backend::SPIR) )
+			return 0;
+#endif
+#if COMPUTECPP_BACKEND_spirv64
+		if( !device.supports_backend(detail::device_backend::SPIRV) )
+			return 0;
+#endif
+#if COMPUTECPP_BACKEND_ptx64
+		if( !device.supports_backend(detail::device_backend::PTX) )
+			return 0;
+#endif
 
 		LOGINFO("CUs - %d, cores per CU %d, total FALU %d gpu - %d",
 				cuCount, coresPerCU, cuCount * coresPerCU * flopsPerCore, isGPU);
@@ -126,7 +151,7 @@ AL2O3_EXTERN_C SyclHandle AccelSycl_Create() {
 
 					(int) dev.get_info<info::device::local_mem_size>() / 1024);
 
-	auto sycl = new SyclCore{dev};
+	auto sycl = MEMORY_NEW(SyclCore, dev);
 
 	const int dataSize = 128;
 	float data[dataSize * dataSize] = {0.f};
@@ -134,18 +159,23 @@ AL2O3_EXTERN_C SyclHandle AccelSycl_Create() {
 	range<2> dataRange(dataSize,dataSize);
 	buffer<float, 2> buf(data, dataRange);
 
-	sycl->queue.submit([&](handler &cgh) {
-		auto ptr = buf.get_access<access::mode::read_write>(cgh);
+	try {
+		sycl->queue.submit([&](handler &cgh) {
+			auto ptr = buf.get_access<access::mode::read_write>(cgh);
 
-		cgh.parallel_for<selftestTag>(dataRange, [=](item<2> item) {
-			size_t idx = item.get_id(0);
-			ptr[item.get_id()] = static_cast<float>(idx);
+			cgh.parallel_for<selftestTag>(dataRange, [=](item<2> item) {
+				size_t idx = item.get_id(0);
+				ptr[item.get_id()] = static_cast<float>(idx);
+			});
 		});
-	});
-
+	} catch( cl::sycl::exception const e) {
+		LOGERROR("%s", e.what());
+	} catch( std::exception const e) {
+		LOGERROR("%s", e.what());
+	}
 	/* A host accessor can be used to force an update from the device to the
 	 * host, allowing the data to be checked. */
-	accessor<float, 2, access::mode::read_write, access::target::host_buffer>
+	accessor<float, 2, access::mode::read, access::target::host_buffer>
 			hostPtr(buf);
 
 	if (hostPtr[id<2>(127,0)] != 127.0f) {
@@ -158,7 +188,15 @@ AL2O3_EXTERN_C SyclHandle AccelSycl_Create() {
 }
 
 AL2O3_EXTERN_C void AccelSycl_Destroy(SyclHandle sycl) {
-	delete sycl;
+	if(sycl) {
+		LOGINFO("Destroying Sycl Accelerator");
+		try {
+			sycl->queue.wait_and_throw();
+			MEMORY_DELETE(SyclCore, sycl);
+		} catch( std::exception const e) {
+			LOGERROR("Exception %s", e.what());
+		}
+	}
 }
 cl::sycl::queue& Accel::Sycl::getQueue() {
 	return ((SyclCore*)this)->queue;

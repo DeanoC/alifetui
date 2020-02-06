@@ -8,68 +8,50 @@
 #include "al2o3_cmath/scalar.h"
 #include "al2o3_memory/memory.h"
 #include "worldcylinder.hpp"
+#include <random>
+
+static int const SuperSampleRate = 8;
 
 WorldCylinder::WorldCylinder(uint32_t width_, uint32_t height_) :
-	width{ width_ },
-	height{ height_ },
-	doubleBufferIndex{ 0 },
-	hostIntensity { (float*)MEMORY_CALLOC(width_*height_, sizeof(float)) },
-	dataRange{ height_, width_  }
-{
+		width{width_},
+		height{height_},
+		doubleBufferIndex{0},
+		hostIntensity{(float *) MEMORY_CALLOC(width_ * height_, sizeof(float))},
+		hostNewData{(float *) MEMORY_CALLOC(height_ * SuperSampleRate, sizeof(float))},
+		dataRange{height_ * SuperSampleRate, width_ * SuperSampleRate},
+		downSampleRange{height_, width_} {
+	using namespace cl::sycl;
 
-	for (uint32_t y = 0u; y < height; ++y) {
-		for (uint32_t x = 0u; x < width; ++x) {
-			float inten = (float)x / (float)width;
+	LOGINFO("World size = %d x %d", dataRange[1], dataRange[0]);
 
-			//			inten += cos(b1 * ((float)item.get_id(0) / lwidth) + phi1);
-			//			inten += cos(b2 * ((float)item.get_id(1) / lheight)+ phi2);
-			hostIntensity[y * width + x] = inten * 128;
-		}
-	}
-
-	intensity[0] = cl::sycl::buffer<float,2>{ hostIntensity, dataRange };
-	intensity[1] = cl::sycl::buffer<float,2>{ hostIntensity, dataRange };
-
+	intensity[0] = buffer<float, 2>{dataRange};
+	intensity[1] = buffer<float, 2>{dataRange};
+	newData = buffer<float, 1>(cl::sycl::range<1>(dataRange[0]));
+	downSample = buffer<float, 2>{downSampleRange};
 }
 
 WorldCylinder::~WorldCylinder() {
+	MEMORY_FREE(hostNewData);
 	MEMORY_FREE(hostIntensity);
 }
 
 namespace {
 struct UpdateTag1;
-struct InitTag1;
+struct UpdateTag2;
+struct DownSamplerTag1;
 }
 
-void WorldCylinder::init(cl::sycl::queue& q) {
+void WorldCylinder::init(cl::sycl::queue &q) {
 	using namespace cl::sycl;
 
-	float const b1 = 1;
-	float const phi1 = 0;
-	float const b2 = 1;
-	float const phi2 = 0;
-	float const c1 = 1;
-	float const c2 = 0;
-
-	float const lwidth = (float)width;
-	float const lheight = (float)height;
-	//			inten += cos(b1 * ((float)item.get_id(0) / lwidth) + phi1);
-	//			inten += cos(b2 * ((float)item.get_id(1) / lheight)+ phi2);
-
-	q.submit([&](handler &cgh) {
-
-		auto ptr = intensity[doubleBufferIndex].get_access<access::mode::read_write>(cgh);
-		cgh.copy(hostIntensity, ptr);
-
-/*		cgh.parallel_for<InitTag1>(dataRange, [=](item<2> item) {
-			float inten = (float)item.get_id(0) / lwidth;
-
-//			inten += cos(b1 * ((float)item.get_id(0) / lwidth) + phi1);
-//			inten += cos(b2 * ((float)item.get_id(1) / lheight)+ phi2);
-
-			ptr[item.get_id()] = inten * 128;
-		});*/
-	});
+	try {
+		q.submit([&](handler &cgh) {
+			auto ptr1 = intensity[0].get_access<access::mode::discard_write>(cgh);
+			cgh.fill<float>(ptr1, 0.0f);
+		});
+	} catch (sycl::exception const &e) {
+		LOGERROR("Caught synchronous SYCL exception: %s", e.what());
+	}
 
 }
 /* Attempts to determine a good local size. The OpenCL implementation can
@@ -79,7 +61,7 @@ void WorldCylinder::init(cl::sycl::queue& q) {
  * it might prove most optimal to pad the image along one dimension so that
  * the local size could be 64, but this introduces other complexities. */
 cl::sycl::range<2> get_optimal_local_range(cl::sycl::range<2> globalSize,
-																 cl::sycl::device d) {
+																					 cl::sycl::device d) {
 	using namespace cl::sycl;
 	range<2> optimalLocalSize;
 	/* 64 is a good local size on GPU-like devices, as each compute unit is
@@ -101,38 +83,90 @@ cl::sycl::range<2> get_optimal_local_range(cl::sycl::range<2> globalSize,
 	return optimalLocalSize;
 }
 
-void WorldCylinder::update(cl::sycl::queue& q) {
+void WorldCylinder::update(cl::sycl::queue &q) {
 	using namespace cl::sycl;
+	auto const ndr = nd_range<2>{dataRange, range<2>(32, 32)};
+	auto const dsndr = nd_range<2>{downSampleRange, range<2>(16, 32)};
 
-	auto const ndr = nd_range<2>{ dataRange, get_optimal_local_range(dataRange, q.get_device()) };
-
-	q.submit([&](handler &cgh) {
-		auto imp = intensity[doubleBufferIndex].get_access<access::mode::read>(cgh);
-		auto outp = intensity[doubleBufferIndex^1].get_access<access::mode::read_write>(cgh);
-
-		cgh.parallel_for<UpdateTag1>(ndr, [=](nd_item<2> item) {
-					id<2> const gid = item.get_global_id();
-
-					if(gid[1] == 10 ) {
-						outp[item.get_global_id()] = '$';//imp[id];
-					} else {
-						outp[item.get_global_id()] = '@';
-					}
+	try {
+		q.submit([&](handler &cgh) {
+			auto newDataPtr = newData.get_access<access::mode::discard_write>(cgh);
+			std::random_device r;
+			std::default_random_engine e1(r());
+			std::uniform_real_distribution<float> uniform_dist;
+			for (uint32_t i = 0u; i < dataRange[0]; ++i) {
+				hostNewData[i] = uniform_dist(e1);
+			}
+			cgh.copy(hostNewData, newDataPtr);
 		});
 
-		doubleBufferIndex ^= 1;
-	});
+		q.submit([&](handler &cgh) {
+			auto inp = intensity[doubleBufferIndex].get_access<access::mode::read>(cgh);
+			auto outp = intensity[doubleBufferIndex ^ 1].get_access<access::mode::discard_write>(cgh);
+
+			cgh.parallel_for<UpdateTag1>(ndr, [=](nd_item<2> item) {
+				id<2> const gid = item.get_global_id();
+				float val = inp[gid];// - 0.01f;
+				val = Math_MaxF(val, 0.0f);
+				outp[gid] = val;
+			});
+		});
+
+		q.submit([&](handler &cgh) {
+			auto outp = intensity[doubleBufferIndex ^ 1].get_access<access::mode::read_write>(cgh);
+			auto newDataPtr = newData.get_access<access::mode::read>(cgh);
+
+			float const ht = (float) dataRange[0];
+			float const wd = (float) dataRange[1];
+
+			cgh.parallel_for<UpdateTag2>(range<1>(dataRange[0]/2), [=](item<1> item) {
+				id<2> const dst{ (size_t)(newDataPtr[item.get_linear_id() * 2] * ht),
+										 			(size_t)(newDataPtr[item.get_linear_id() * 2 + 1] * wd) };
+				outp[dst] = 64.0f;
+			});
+		});
+
+		q.submit([&](handler &cgh) {
+			auto src = intensity[doubleBufferIndex ^ 1].get_access<access::mode::read>(cgh);
+			auto dst = downSample.get_access<access::mode::discard_write>(cgh);
+			cgh.parallel_for<DownSamplerTag1>(dsndr, [=](nd_item<2> item) {
+				id<2> gid = item.get_global_id();
+				float accum = 0;
+				for (int i = 0; i < SuperSampleRate; ++i) {
+					id<2> agid;
+					agid[0] = (gid[0] * SuperSampleRate) + i;
+					agid[1] = (gid[1] * SuperSampleRate);
+					for (int j = 0; j < SuperSampleRate; ++j) {
+						accum += src[agid];
+						agid[1] += 1;
+					}
+				}
+				dst[gid] = accum * (1.0f / (SuperSampleRate*SuperSampleRate));
+			});
+			doubleBufferIndex ^= 1;
+		});
+
+
+		updateDoneEvent = q.submit([&](handler &cgh) {
+			auto src = downSample.get_access<access::mode::read>(cgh);
+			cgh.copy(src, hostIntensity);
+		});
+
+	} catch( cl::sycl::exception const e) {
+		LOGERROR("%s", e.what());
+	} catch( std::exception const e) {
+		LOGERROR("%s", e.what());
+	}
 }
 
 void WorldCylinder::flushToHost() {
 	using namespace cl::sycl;
-	accessor<float, 2, access::mode::read, access::target::host_buffer>
-			hostPtr(intensity[doubleBufferIndex]);
 
-/*	for (uint32_t y = 0u; y < height; ++y) {
-		for (uint32_t x = 0u; x < width; ++x) {
-			hostIntensity[y * width + x] = hostPtr[id<2>(x,y)];
-		}
-	}*/
-	memcpy(hostIntensity, hostPtr.get_pointer(), sizeof(float) * width * height);
+	try {
+		updateDoneEvent.wait_and_throw();
+	} catch( cl::sycl::exception const e) {
+		LOGERROR("%s", e.what());
+	} catch( std::exception const e) {
+		LOGERROR("%s", e.what());
+	}
 }
